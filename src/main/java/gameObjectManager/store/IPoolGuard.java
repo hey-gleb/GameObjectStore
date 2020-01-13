@@ -1,5 +1,6 @@
 package gameObjectManager.store;
 
+import gameObjectManager.object.IFieldName;
 import gameObjectManager.object.UObject;
 
 import java.util.Iterator;
@@ -16,16 +17,17 @@ public interface IPoolGuard extends AutoCloseable {
      * @return object
      * @throws PoolGuardException is thrown if unable to get object from guard pool
      */
-    UObject getObject(final Key objectId) throws PoolGuardException;
+    UObject getObjectById(final Key objectId) throws PoolGuardException;
 
     /**
-     * Function contract to get players objects
+     * Function contract to get objects by field
      *
-     * @param userId user id
+     * @param fieldName field name
+     * @param value value
      * @return iterator
      * @throws PoolGuardException is thrown if unable to get players objects from guard pool
      */
-    Iterator<UObject> getPlayerObjects(final Key userId) throws PoolGuardException;
+    Iterator<UObject> getObjectsByField(final IFieldName fieldName, final Key value) throws PoolGuardException;
 
     /**
      * Function contract to get all objects

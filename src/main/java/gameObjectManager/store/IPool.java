@@ -1,5 +1,6 @@
 package gameObjectManager.store;
 
+import gameObjectManager.object.IFieldName;
 import gameObjectManager.object.UObject;
 
 import java.util.Iterator;
@@ -10,13 +11,14 @@ import java.util.Iterator;
 public interface IPool {
 
     /**
-     * Function to get object by id
+     * Function to get object by custom field
      *
-     * @param id object id
+     * @param field field name
+     * @param value value
      * @return an object
      * @throws PoolException is thrown if unable to get object
      */
-    Iterator<UObject> getObject(final Key id) throws PoolException;
+    Iterator<UObject> getObject(final IFieldName field, final Key value) throws PoolException;
 
     /**
      * Function to get all pool objects
@@ -25,13 +27,6 @@ public interface IPool {
      * @throws PoolException is thrown if unable to get all pool objects
      */
     Iterator<UObject> getAllObjects() throws PoolException;
-
-//    /**
-//     * Function to put object to pool
-//     * @param value object to put
-//     * @throws PoolException is thrown if unable to put object to pool
-//     */
-//    void putObjects(final Iterator<UObject> value) throws PoolException;
 
 
     /**

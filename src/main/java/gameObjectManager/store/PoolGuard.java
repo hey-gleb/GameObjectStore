@@ -1,5 +1,7 @@
 package gameObjectManager.store;
 
+import gameObjectManager.object.FieldName;
+import gameObjectManager.object.IFieldName;
 import gameObjectManager.object.UObject;
 
 import java.util.Iterator;
@@ -9,20 +11,23 @@ import java.util.Iterator;
  */
 public class PoolGuard implements IPoolGuard {
     private IPool pool;
-    private Iterator<UObject> currentIterator;
+    private volatile Iterator<UObject> currentIterator;
+    private final IFieldName idFieldName;
 
     /**
      * PoolGuard constructor
+     *
      * @param pool using pool
      */
     public PoolGuard(final IPool pool) {
         this.pool = pool;
+        this.idFieldName = new FieldName("ObjectId");
     }
 
     @Override
-    public UObject getObject(final Key objectId) throws PoolGuardException {
+    public synchronized UObject getObjectById(final Key value) throws PoolGuardException {
         try {
-            this.currentIterator = pool.getObject(objectId);
+            this.currentIterator = pool.getObject(idFieldName, value);
             return this.currentIterator.next();
         } catch (PoolException e) {
             throw new PoolGuardException("Unable to get object from pool", e);
@@ -30,13 +35,17 @@ public class PoolGuard implements IPoolGuard {
     }
 
     @Override
-    public Iterator<UObject> getPlayerObjects(final Key userId) throws PoolGuardException {
-        //TODO add getting objects by user id
-        return null;
+    public synchronized Iterator<UObject> getObjectsByField(final IFieldName fieldName, final Key value) throws PoolGuardException {
+        try {
+            this.currentIterator = pool.getObject(fieldName, value);
+            return this.currentIterator;
+        } catch (PoolException e) {
+            throw new PoolGuardException("Unable to get object from pool", e);
+        }
     }
 
     @Override
-    public Iterator<UObject> getObjects() throws PoolGuardException {
+    public synchronized Iterator<UObject> getObjects() throws PoolGuardException {
         try {
             return pool.getAllObjects();
         } catch (PoolException e) {
@@ -45,7 +54,7 @@ public class PoolGuard implements IPoolGuard {
     }
 
     @Override
-    public Object putObject(final UObject value) throws PoolGuardException {
+    public synchronized Object putObject(final UObject value) throws PoolGuardException {
         try {
             return pool.putObject(value);
         } catch (PoolException e) {
@@ -54,19 +63,19 @@ public class PoolGuard implements IPoolGuard {
     }
 
     @Override
-    public UObject deleteObject(final Key objectId) throws PoolGuardException {
+    public synchronized UObject deleteObject(final Key objectId) throws PoolGuardException {
         try {
             return pool.deleteObject(objectId);
         } catch (PoolException e) {
-            throw new PoolGuardException("Unable to delete object from pool",e);
+            throw new PoolGuardException("Unable to delete object from pool", e);
         }
     }
 
     @Override
-    public void close() throws PoolGuardException{
+    public void close() throws PoolGuardException {
         try {
-            if(currentIterator == null) return;
-            while(currentIterator.hasNext()) {
+            if (currentIterator == null) return;
+            while (currentIterator.hasNext()) {
                 pool.putObject(currentIterator.next());
             }
         } catch (PoolException e) {

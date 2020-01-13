@@ -1,5 +1,6 @@
 package gameObjectManager.store;
 
+import gameObjectManager.object.IFieldName;
 import gameObjectManager.object.UObject;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,11 +32,11 @@ public class PoolGuardTest {
         Iterator<UObject> iterator = mock(Iterator.class);
         int id = 12;
 
-        when(pool.getObject(any(Key.class))).thenReturn(iterator);
+        when(pool.getObject(any(IFieldName.class), any(Key.class))).thenReturn(iterator);
         when(iterator.next()).thenReturn(expectedObject);
 
         try (IPoolGuard store = new PoolGuard(pool)) {
-            UObject resultObject = store.getObject(new Key<>(id));
+            UObject resultObject = store.getObjectById(new Key<>(id));
             assertEquals(expectedObject, resultObject);
         }
     }
@@ -46,12 +47,26 @@ public class PoolGuardTest {
         Iterator<UObject> iterator = mock(Iterator.class);
         String id = UUID.randomUUID().toString();
 
-        when(pool.getObject(any(Key.class))).thenReturn(iterator);
+        when(pool.getObject(any(IFieldName.class), any(Key.class))).thenReturn(iterator);
         when(iterator.next()).thenReturn(expectedObject);
 
         try (IPoolGuard store = new PoolGuard(pool)) {
-            UObject resultObject = store.getObject(new Key<>(id));
+            UObject resultObject = store.getObjectById(new Key<>(id));
             assertEquals(expectedObject, resultObject);
+        }
+    }
+
+    @Test
+    public void testGetPlayerObjects() throws PoolGuardException, PoolException {
+        IFieldName userIdFieldName = mock(IFieldName.class);
+        Iterator<UObject> iterator = mock(Iterator.class);
+        String userId = UUID.randomUUID().toString();
+
+        when(pool.getObject(any(IFieldName.class), any(Key.class))).thenReturn(iterator);
+
+        try (IPoolGuard store = new PoolGuard(pool)) {
+            Iterator<UObject> resultIterator = store.getObjectsByField(userIdFieldName,new Key<>(userId));
+            assertEquals(iterator, resultIterator);
         }
     }
 
