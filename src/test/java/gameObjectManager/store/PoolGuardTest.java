@@ -65,7 +65,7 @@ public class PoolGuardTest {
         when(pool.getObject(any(IFieldName.class), any(Key.class))).thenReturn(iterator);
 
         try (IPoolGuard store = new PoolGuard(pool)) {
-            Iterator<UObject> resultIterator = store.getObjectsByField(userIdFieldName,new Key<>(userId));
+            Iterator<UObject> resultIterator = store.getObjectsByField(userIdFieldName, new Key<>(userId));
             assertEquals(iterator, resultIterator);
         }
     }
@@ -112,5 +112,61 @@ public class PoolGuardTest {
         String actualId = (String) store.putObject(uObject);
 
         assertEquals(id, actualId);
+    }
+
+    @Test(expected = PoolGuardException.class)
+    public void testGetObjectPoolException() throws PoolException, PoolGuardException {
+        IFieldName mockFieldName = mock(IFieldName.class);
+        Key mockKey = mock(Key.class);
+        when(pool.getObject(any(IFieldName.class), any(Key.class))).thenThrow(new PoolException());
+        try (IPoolGuard store = new PoolGuard(pool)) {
+            store.getObjectsByField(mockFieldName, mockKey);
+        }
+    }
+
+    @Test(expected = PoolGuardException.class)
+    public void testGetObjectByIdPoolException() throws PoolException, PoolGuardException {
+        Key mockKey = mock(Key.class);
+        when(pool.getObject(any(IFieldName.class), any(Key.class))).thenThrow(new PoolException());
+        try (IPoolGuard store = new PoolGuard(pool)) {
+            store.getObjectById(mockKey);
+        }
+    }
+
+    @Test(expected = PoolGuardException.class)
+    public void testGetAllObjectPoolException() throws PoolException, PoolGuardException {
+        when(pool.getAllObjects()).thenThrow(new PoolException());
+        try (IPoolGuard store = new PoolGuard(pool)) {
+            store.getObjects();
+        }
+    }
+
+    @Test(expected = PoolGuardException.class)
+    public void testDeleteObjectPoolException() throws PoolException, PoolGuardException {
+        Key mockKey = mock(Key.class);
+        when(pool.deleteObject(any(Key.class))).thenThrow(new PoolException());
+        IPoolGuard store = new PoolGuard(pool);
+        store.deleteObject(mockKey);
+    }
+
+    @Test(expected = PoolGuardException.class)
+    public void testPutObjectPoolException() throws PoolException, PoolGuardException {
+        UObject mockObject = mock(UObject.class);
+        when(pool.putObject(any(UObject.class))).thenThrow(new PoolException());
+        IPoolGuard store = new PoolGuard(pool);
+        store.putObject(mockObject);
+    }
+
+    @Test (expected = PoolGuardException.class)
+    public void testClosePoolGuardException() throws PoolGuardException, PoolException {
+        UObject object = mock(UObject.class);
+        Iterator<UObject> iterator = mock(Iterator.class);
+        when(iterator.hasNext()).thenReturn(true,false);
+        when(iterator.next()).thenReturn(object);
+        when(pool.getAllObjects()).thenReturn(iterator);
+        when(pool.putObject(any(UObject.class))).thenThrow(new PoolException());
+        try (IPoolGuard store = new PoolGuard(pool)) {
+            store.getObjects();
+        }
     }
 }

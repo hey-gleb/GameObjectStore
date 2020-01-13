@@ -47,7 +47,8 @@ public class PoolGuard implements IPoolGuard {
     @Override
     public synchronized Iterator<UObject> getObjects() throws PoolGuardException {
         try {
-            return pool.getAllObjects();
+            this.currentIterator = pool.getAllObjects();
+            return this.currentIterator;
         } catch (PoolException e) {
             throw new PoolGuardException("Unable to get all objects from pool", e);
         }
