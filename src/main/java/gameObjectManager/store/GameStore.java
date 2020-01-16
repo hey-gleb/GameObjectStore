@@ -27,10 +27,21 @@ public class GameStore implements IGameStore {
         this.playerObjects = playerObjects;
     }
 
+    /**
+     * Function to get players object lists
+     *
+     * @return collection list
+     */
     public Collection<List<IGameObject>> getObjectsCollection() {
         return this.playerObjects.values();
     }
 
+    /**
+     * Function to get player object list
+     *
+     * @param playerId user id
+     * @return player object collection
+     */
     public List<IGameObject> getObjectList(final String playerId) {
         return this.playerObjects.get(playerId);
     }
